@@ -1,5 +1,6 @@
 Flask==2.2.5
 pandas==1.5.3
+numpy==1.24.3
 requests==2.31.0
 groq==0.33.0
 python-dotenv==1.0.0
