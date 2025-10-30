@@ -4,7 +4,7 @@
 # missing data or wrong data (string input, null input)
 # inconsistent formatting (file format all in one column, encoding)
 
-# Helper functions to validate inputs
+# Helper functions to validate the inputs
 
 import pandas as pd
 import csv
