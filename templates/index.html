@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <title>Starbucks Nutrition Analysis</title>
+        <link rel="stylesheet" type="text/css" href="static/style.css">
+    </head>
+
+    <body>
+        <!--Manual upload of files-->
+        <div id="file-upload-section" style="text-align:center; margin: 20px;">
+            <h3>Upload your datasets</h3>
+            <p>Note that sample data has already been uploaded</p>
+            <label>
+                Food Dataset:
+                <input type="file" id="food-file-input" accept=".csv" />
+                <span id="food-file-name">No file chosen</span>
+            </label>
+            <br><br>
+            <label>
+                Drinks Dataset:
+                <input type="file" id="drink-file-input" accept=".csv" />
+                <span id="drink-file-name">No file chosen</span>
+            </label>
+            <br><br>
+            <button id="upload-btn">Upload and Load Data</button>
+        </div>
+
+
+        <!--LLM based summarisation-->
+        <div id="llm-section" style="margin-top: 30px; text-align: center;">
+            <h3>Nutrition Summary with AI</h3>
+            <p>Example prompt: Analyse this nutrition data and summarise key insights with focus on highest sugar and calorie items.</p>
+            <textarea id="llm-prompt" rows="4" cols="50" placeholder="Type your prompt here..."></textarea>
+            <br>
+            <button id="llm-submit-btn">Get Summary</button>
+
+            <div id="llm-output" style="margin-top: 15px; border: 1px solid #ccc; background: #fafafa; padding: 15px; min-height: 100px; white-space: pre-wrap; text-align: left;"></div>
+        </div>
+
+
+        <div class="container">
+            <div class="table-container">
+                <!--Show food data-->
+                <h3>Food Data</h3>
+
+                <!--food filter inputs-->
+                <div class="filters">
+                    <label>Name: <input type="text" id="food-name-filter"></label>
+
+                    <label>Calories: 
+                        <input type="number" id="food-calories-filter"> <!--value input-->
+                        <select id="food-calories-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>                            
+                        </select>
+                    </label>
+
+                    <label>Fat: 
+                        <input type="number" id="food-fat-filter"> <!--value input-->
+                        <select id="food-fat-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Carb: 
+                        <input type="number" id="food-carb-filter"> <!--value input-->
+                        <select id="food-carb-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Fiber: 
+                        <input type="number" id="food-fiber-filter"> <!--value input-->
+                        <select id="food-fiber-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Protein: 
+                        <input type="number" id="food-protein-filter"> <!--value input-->
+                        <select id="food-protein-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Fat-to-Protein Ratio: 
+                        <input type="number" id="food-fpr-filter"> <!--value input-->
+                        <select id="food-fpr-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+                </div>
+
+                <!--Show food data-->
+                <div class="table-wrapper" style="max-height: 150px; overflow-y: auto;">
+                    <table id="food-table">
+                        <thead>
+                        <tr>
+                            {% for col in food_data[0].keys() %}
+                                {% if col != "index" %} <!--skip showing of "index"/top left hand box-->
+                                    <th>{{ col }}</th>
+                                {% else %}
+                                    <th></th>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in food_data %}
+                        <tr>
+                            {% for k, v in row.items() %}
+                                {% if k != "index" %} <!--skip showing of "index"/top left hand box-->
+                                    <td>{{ v }}</td>
+                                {% else %}
+                                    <td>{{ v }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!--Show drinks data-->
+                <h3>Drink Data</h3>
+
+                <!--drinks filter inputs-->
+                <div class="filters">
+                    <label>Name: <input type="text" id="drink-name-filter"></label>
+
+                    <label>Calories: 
+                        <input type="number" id="drink-calories-filter"> <!--value input-->
+                        <select id="drink-calories-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Fat: 
+                        <input type="number" id="drink-fat-filter"> <!--value input-->
+                        <select id="drink-fat-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Carb: 
+                        <input type="number" id="drink-carb-filter"> <!--value input-->
+                        <select id="drink-carb-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Fiber: 
+                        <input type="number" id="drink-fiber-filter"> <!--value input-->
+                        <select id="drink-fiber-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Protein: 
+                        <input type="number" id="drink-protein-filter"> <!--value input-->
+                        <select id="drink-protein-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+
+                    <label>Fat-to-Protein Ratio: 
+                        <input type="number" id="drink-fpr-filter"> <!--value input-->
+                        <select id="drink-fpr-type"> <!--range input-->
+                            <option value="less"><</option>
+                            <option value="lesseq">≤</option>
+                            <option value="equal">=</option>
+                            <option value="greatereq">≥</option>
+                            <option value="greater">></option>  
+                        </select>
+                    </label>
+                </div>
+
+                <!--Show drinks data-->
+                <div class="table-wrapper" style="max-height: 150px; overflow-y: auto;">
+                    <table id="drink-table">
+                        <thead>
+                        <tr>
+                            {% for col in drink_data[0].keys() %}
+                            <th>{{ col }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in drink_data %}
+                        <tr>
+                            {% for col in row.values() %}
+                            <td>{{ col }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="nutrition-container">
+            <!--Checkboxes for the comparison-->
+            <div id="checkboxes">
+                <h4>Select Nutrients:</h4>
+                <form id="checkbox-form">
+                    {% for nutrient in all_nutrients %}
+                    <label>
+                    <input type="checkbox" name="nutrients" value="{{ nutrient }}" {% if nutrient in selected %}checked{% endif %}>
+                    {{ nutrient }}
+                    </label>
+                    {% endfor %}
+                </form>
+            </div>
+
+            <!--Comparison between food and drink-->
+            <h3>Nutrition Comparison</h3>
+            <table id="nutrition-table">
+            <thead>
+                <tr>
+                <th>Nutrient</th>
+                <th>Food Avg</th>
+                <th>Drinks Avg</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in table_data %}
+                <tr data-nutrient="{{ row.nutrient }}">
+                <td>{{ row.nutrient }}</td>
+                <td>{{ row.food_avg }}</td>
+                <td>{{ row.drink_avg }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+            
+            <!--Drop down for bar chart-->
+            <label for="food-select">Select Food:</label>
+            <select id="food-select">
+                {% for item in food_items %}
+                <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="drink-select">Select Drink:</label>
+            <select id="drink-select">
+                {% for item in drink_items %}
+                <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+            
+            <!--bar chart-->
+            <div id="item-bar-chart" style="width: 100%; height: 400px;"></div>
+        </div>
+        
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script> <!--for ploting-->>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <!--for formatting of LLM output-->
+        <script src="static/script.js"></script>
+    </body>
+
+</html>

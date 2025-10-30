@@ -1,0 +1,79 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  padding: 0 20px;
+  display: block;
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.table-container {
+  width: 100%;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 15px auto;
+}
+
+th, td {
+  border: 1px solid #aaa;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #333;
+  color: white;
+}
+
+.nutrition-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#checkboxes {
+  margin-top: 10px;
+  text-align: center;
+}
+
+#checkboxes label {
+  display: inline-block;
+  margin: 0 10px 10px 0;
+  font-size: 14px;
+}
+
+.filters {
+  text-align: center; /* Centers the filter input block */
+  margin-bottom: 15px;
+}
+
+.filters label {
+  display: block;
+  margin: 5px auto; 
+  max-width: auto;
+}
+
+.table-wrapper {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 25px;
+}
+
+/* Make the header sticky */
+.table-wrapper thead th {
+  position: sticky;
+  top: 0;
+  background: #333;
+  color: #fff;
+  z-index: 2;
+}
